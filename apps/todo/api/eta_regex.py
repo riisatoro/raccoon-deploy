@@ -37,8 +37,10 @@ def create_eta_date(verbose: str, date: str) -> datetime:
 def parse_command_info(command: str) -> list[tuple[str]]:
     project_issue_match = re.findall(create_eta_pattern, command)
     interval_match = re.findall(create_eta_time_pattern, command)
-    if not project_issue_match or not interval_match:
-        raise ValueError("Command is not valid.")
+    if not project_issue_match:
+        raise ValueError("Can't parse the project & issue info.")
+    if not interval_match:
+        raise ValueError("Can't parse the project & issue time interval.")
 
     return project_issue_match[0], interval_match[0]
 
@@ -57,9 +59,6 @@ def parse_new_eta_regex(command: str) -> list[str | datetime]:
 
 def create_new_eta(command: str, user) -> Expectation:
     project_name, issue_name, expected_at_date = parse_new_eta_regex(command)
-
-    if Expectation.objects.filter(project__name=project_name, issue=issue_name, user=user).exists():
-        raise ValueError("Duplicate project or issue")
 
     project, _ = Project.objects.get_or_create(name=project_name)
     expectation = Expectation.objects.create(

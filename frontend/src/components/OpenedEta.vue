@@ -25,24 +25,31 @@ export default {
 
 <template>
   <div class="my-5 flex justify-center">
-    <table v-if="eta?.length" class="table-auto">
-      <thead>
+    <table v-if="eta?.length" class="min-w-full lg:px-8">
+      <thead class="border-b">
         <tr>
-          <th>Project</th>
-          <th>Issue</th>
-          <th>Created at</th>
-          <th>Expected at</th>
+          <th scope="col" class="px-6 py-4 text-center text-sm font-bold text-gray-900">All opened ETA</th>
+          <th scope="col" class="px-6 py-4 text-center text-sm font-medium text-gray-900">Project</th>
+          <th scope="col" class="px-6 py-4 text-center text-sm font-medium text-gray-900">Issue</th>
+          <th scope="col" class="px-6 py-4 text-center text-sm font-medium text-gray-900">Created at</th>
+          <th scope="col" class="px-6 py-4 text-center text-sm font-medium text-gray-900">Expected at</th>
         </tr>
       </thead>
-      <tbody v-for="(item) in eta" :key="item.project.name + item.user.username">
-        <tr>
-          <td class="p-2">{{ item.project.name }}</td>
-          <td class="p-2">{{ item.issue }}</td>
-          <td class="p-2">{{ formatDate(item.created_at) }}</td>
-          <td class="p-2">{{ formatDate(item.expected_at) }}</td>
+      <tbody v-for="(item) in eta" :key="item.project.name + item.user.username" class="m-2 text-center">
+        <tr class="border-b">
+          <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900" />
+          <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">{{ item.project.name }}</td>
+          <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">{{ item.issue }}</td>
+          <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
+            {{ formatDate(item.created_at) }}
+          </td>
+          <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
+            {{ formatDate(item.expected_at) }}
+          </td>
         </tr>
       </tbody>
     </table>
+
     <h2 v-if="!eta?.length">No opened ETA for now.</h2>
   </div>
 </template>

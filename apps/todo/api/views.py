@@ -31,8 +31,12 @@ class UserEtaView(APIView):
         return Response(data)
 
     def post(self, request):
-        command = request.POST.get("command") or ""
-        existed_eta = Expectation.objects.filter(user=request.user).first()
+        command = request.data.get("command", "")
+        existed_eta = (
+            Expectation.objects.filter(user=request.user)
+            .filter(Q(done_at__isnull=True) | Q(done_at__gt=timezone.now()))
+            .first()
+        )
         try:
             if existed_eta:
                 extends_existed_eta(command, existed_eta)
