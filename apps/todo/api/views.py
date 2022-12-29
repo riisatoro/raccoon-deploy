@@ -32,6 +32,8 @@ class UserEtaView(APIView):
 
     def post(self, request):
         command = request.data.get("command", "")
+        client_timezone = request.data.get("tzinfo", "UTC")
+
         existed_eta = (
             Expectation.objects.filter(user=request.user)
             .filter(Q(done_at__isnull=True) | Q(done_at__gt=timezone.now()))
@@ -41,7 +43,7 @@ class UserEtaView(APIView):
             if existed_eta:
                 extends_existed_eta(command, existed_eta)
             else:
-                create_new_eta(command, request.user)
+                create_new_eta(command, client_timezone, request.user)
         except ValueError as e:
             return Response({"detail": e.args[0]}, status=HTTP_400_BAD_REQUEST)
 

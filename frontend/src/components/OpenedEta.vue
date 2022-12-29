@@ -29,6 +29,7 @@ export default {
       <thead class="border-b">
         <tr>
           <th scope="col" class="px-6 py-4 text-center text-sm font-bold text-gray-900">All opened ETA</th>
+          <th scope="col" class="px-6 py-4 text-center text-sm font-medium text-gray-900">User</th>
           <th scope="col" class="px-6 py-4 text-center text-sm font-medium text-gray-900">Project</th>
           <th scope="col" class="px-6 py-4 text-center text-sm font-medium text-gray-900">Issue</th>
           <th scope="col" class="px-6 py-4 text-center text-sm font-medium text-gray-900">Created at</th>
@@ -38,6 +39,7 @@ export default {
       <tbody v-for="(item) in eta" :key="item.project.name + item.user.username" class="m-2 text-center">
         <tr class="border-b">
           <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900" />
+          <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">{{ item.user.username }}</td>
           <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">{{ item.project.name }}</td>
           <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">{{ item.issue }}</td>
           <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">

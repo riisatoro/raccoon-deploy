@@ -24,11 +24,10 @@ export default {
 
     const submit = async (e) => {
       const form = new FormData(e.target);
-      const payload = Object.fromEntries(form.entries());
+      const payload = {...Object.fromEntries(form.entries()), tzinfo: Intl.DateTimeFormat().resolvedOptions().timeZone};
       await sendEtaCommand(payload);
       await fetchUserEta();
       message.value = "";
-
     };
 
     return {eta, message, formatDate, submit};
@@ -88,7 +87,7 @@ export default {
     </div>
 
     <h2 v-if="!eta?.closed?.length" class="mt-5 text-center text-lg">You don't have closed ETA for now.</h2>
-    <div class="flex justify-center">
+    <div v-if="eta?.closed?.length" class="flex justify-center">
       <table class="min-w-full lg:px-8">
         <thead class="border-b">
           <tr>

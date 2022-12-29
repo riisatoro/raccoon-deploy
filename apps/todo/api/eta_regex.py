@@ -2,6 +2,7 @@ import re
 from datetime import datetime, timedelta
 from enum import Enum
 
+import pytz
 from django.utils import timezone
 
 from apps.todo.models import Expectation, Project
@@ -22,8 +23,8 @@ def create_eta_time(date: datetime, time: str) -> datetime:
     return date.replace(hour=int(hours), minute=int(minutes))
 
 
-def create_eta_date(verbose: str, date: str) -> datetime:
-    expected_at = timezone.now()
+def create_eta_date(verbose: str, date: str, client_timezone) -> datetime:
+    expected_at = datetime.now(tz=pytz.timezone(client_timezone))
 
     if date:
         month, day = date.split("-")
@@ -45,20 +46,20 @@ def parse_command_info(command: str) -> list[tuple[str]]:
     return project_issue_match[0], interval_match[0]
 
 
-def parse_new_eta_regex(command: str) -> list[str | datetime]:
+def parse_new_eta(command: str, clinet_timezone) -> list[str | datetime]:
     project_data, date_data = parse_command_info(command)
 
     project_name, issue_name = project_data
     eta_verbose_end, eta_date_end, eta_time_end = date_data
 
-    expected_at = create_eta_date(eta_verbose_end, eta_date_end)
+    expected_at = create_eta_date(eta_verbose_end, eta_date_end, clinet_timezone)
     expected_at = create_eta_time(expected_at, eta_time_end)
 
     return project_name, issue_name, expected_at
 
 
-def create_new_eta(command: str, user) -> Expectation:
-    project_name, issue_name, expected_at_date = parse_new_eta_regex(command)
+def create_new_eta(command: str, client_timezone: str, user) -> Expectation:
+    project_name, issue_name, expected_at_date = parse_new_eta(command, client_timezone)
 
     project, _ = Project.objects.get_or_create(name=project_name)
     expectation = Expectation.objects.create(
