@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/4.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
-
+from datetime import timedelta
 from pathlib import Path
 
 from decouple import Csv, config
@@ -38,10 +38,13 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
+    "rest_framework",
+    "rest_framework_simplejwt",
     "django_vite",
     "whitenoise.runserver_nostatic",
     "django.contrib.staticfiles",
     "apps.todo",
+    "apps.authorization",
 ]
 
 MIDDLEWARE = [
@@ -135,3 +138,10 @@ DJANGO_VITE_DEV_SERVER_PORT = 3001
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+REST_FRAMEWORK = {"DEFAULT_AUTHENTICATION_CLASSES": ("rest_framework_simplejwt.authentication.JWTAuthentication",)}
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=10000),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+}

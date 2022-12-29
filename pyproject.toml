@@ -11,6 +11,7 @@ djangorestframework = "^3.14.0"
 django-vite = "^2.0.2"
 whitenoise = "^6.2.0"
 python-decouple = "^3.6"
+djangorestframework-simplejwt = "^5.2.2"
 
 [tool.poetry.group.dev.dependencies]
 invoke = "^1.7.3"
