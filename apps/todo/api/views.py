@@ -20,24 +20,24 @@ class UserEtaView(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request):
-        current_eta = Expectation.objects.filter(done_at__isnull=True)
+        current_eta = Expectation.objects.filter(done_at__isnull=True).first()
         closed_eta = Expectation.objects.filter(user=request.user).filter(done_at__lt=timezone.now())
 
         data = {
-            "current": ExpectationSerializer(current_eta).data,
+            "current": ExpectationSerializer(current_eta).data if current_eta else None,
             "closed": ExpectationSerializer(closed_eta, many=True).data,
         }
         return Response(data)
 
     def post(self, request):
-        command = request.POST.get("command")
-        existed_eta = Expectation.objects.filter(user=request.user)
+        command = request.POST.get("command") or ""
+        existed_eta = Expectation.objects.filter(user=request.user).first()
         try:
             if existed_eta:
                 extends_existed_eta(command, existed_eta)
             else:
-                create_new_eta(command)
-        except ValueError:
-            return Response({"detail": "Invalid command"})
+                create_new_eta(command, request.user)
+        except ValueError as e:
+            return Response({"detail": e.args[0]})
 
         return Response({"detail": "ok"})

@@ -17,8 +17,8 @@ class ProjectSerializer(serializers.ModelSerializer):
 
 
 class ExpectationSerializer(serializers.ModelSerializer):
-    user = UserSerializer()
-    project = ProjectSerializer()
+    user = UserSerializer(read_only=True)
+    project = ProjectSerializer(read_only=True)
 
     class Meta:
         model = Expectation
