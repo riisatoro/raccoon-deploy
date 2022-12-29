@@ -1,6 +1,7 @@
 from django.db.models import Q
 from django.utils import timezone
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.status import HTTP_400_BAD_REQUEST
 from rest_framework.views import APIView, Response
 
 from apps.todo.api.eta_regex import create_new_eta, extends_existed_eta
@@ -38,6 +39,6 @@ class UserEtaView(APIView):
             else:
                 create_new_eta(command, request.user)
         except ValueError as e:
-            return Response({"detail": e.args[0]})
+            return Response({"detail": e.args[0]}, status=HTTP_400_BAD_REQUEST)
 
         return Response({"detail": "ok"})

@@ -1,5 +1,5 @@
 import re
-from datetime import timedelta
+from datetime import datetime, timedelta
 from enum import Enum
 
 from django.utils import timezone
@@ -17,19 +17,42 @@ class IntervalTypeEnum(Enum):
     d = "days"
 
 
-def parse_new_eta_regex(command):
+def create_eta_time(date: datetime, time: str) -> datetime:
+    hours, minutes = time.split(":")
+    return date.replace(hour=int(hours), minute=int(minutes))
+
+
+def create_eta_date(verbose: str, date: str) -> datetime:
+    expected_at = timezone.now()
+
+    if date:
+        month, day = date.split("-")
+        expected_at += timedelta(day=int(day), month=int(month))
+    elif verbose == "tommorow":
+        expected_at += timedelta(days=1)
+
+    return expected_at
+
+
+def parse_command_info(command: str) -> list[tuple[str]]:
     project_issue_match = re.findall(create_eta_pattern, command)
-    interval_matches = re.findall(create_eta_time_pattern, command)
-    if not project_issue_match or not interval_matches:
+    interval_match = re.findall(create_eta_time_pattern, command)
+    if not project_issue_match or not interval_match:
         raise ValueError("Command is not valid.")
 
-    project_name, issue_name = project_issue_match[0]
+    return project_issue_match[0], interval_match[0]
 
-    # TODO: implement expected_date creation
-    # eta_verbose_end, eta_date_end, eta_time_end = interval_matches[0]
-    # expected_at_date = None
 
-    return project_name, issue_name, timezone.now()
+def parse_new_eta_regex(command: str) -> list[str | datetime]:
+    project_data, date_data = parse_command_info(command)
+
+    project_name, issue_name = project_data
+    eta_verbose_end, eta_date_end, eta_time_end = date_data
+
+    expected_at = create_eta_date(eta_verbose_end, eta_date_end)
+    expected_at = create_eta_time(expected_at, eta_time_end)
+
+    return project_name, issue_name, expected_at
 
 
 def create_new_eta(command: str, user) -> Expectation:
