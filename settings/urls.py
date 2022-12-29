@@ -19,9 +19,11 @@ from django.urls import include, path
 import apps.core.api.views
 import apps.todo.views
 from apps.authorization.urls import urlpatterns as auth_urlpatterns
+from apps.todo.api.urls import urlpatterns as todo_urlpatterns
 
 api_urlpatterns = [
     *auth_urlpatterns,
+    *todo_urlpatterns,
 ]
 
 urlpatterns = [
