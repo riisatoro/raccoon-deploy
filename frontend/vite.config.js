@@ -8,7 +8,13 @@ export default defineConfig({
   root: resolve("./src"),
   base: "/static/",
   server: {
-    proxy: "http://riisa.pythonanywhere.com"
+    host: "http://riisa.pythonanywhere.com",
+    port: 3001,
+    open: false,
+    watch: {
+      usePolling: true,
+      disableGlobbing: false,
+    }
   },
   resolve: {
     extensions: [".js", ".vue", ".css", ".png"],
