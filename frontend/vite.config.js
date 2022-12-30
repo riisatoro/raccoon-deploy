@@ -6,7 +6,7 @@ const { resolve } = require("path");
 export default defineConfig({
   plugins: [vue()],
   root: resolve("./src"),
-  base: "/static/",
+  base: "/",
   server: {
     host: "http://riisa.pythonanywhere.com",
     port: 3001,
