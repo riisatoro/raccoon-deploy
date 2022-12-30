@@ -8,7 +8,7 @@ export default defineConfig({
   root: resolve("./src"),
   base: "/static/",
   server: {
-    host: "0.0.0.0",
+    host: "localhost",
     port: 3001,
     open: false,
     watch: {
