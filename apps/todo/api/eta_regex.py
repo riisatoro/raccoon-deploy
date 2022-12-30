@@ -7,7 +7,7 @@ from django.utils import timezone
 
 from apps.todo.models import Expectation, Project
 
-create_eta_pattern = r"([^\#]+)#([^\s]+)\W+"
+create_eta_pattern = r"(\w+)#([^\s]+)\W+"
 create_eta_time_pattern = r"\w+#\w+\sat\s(tomorrow)?\s?(\d{2}-\d{2})?\s?(\d{2}:\d{2})"
 extends_eta_pattern = r"eta\s\+(\d+)([m|d|h])"
 
