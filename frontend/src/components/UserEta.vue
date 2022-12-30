@@ -11,7 +11,11 @@ export default {
     const formatDate = (date) => date ? moment(date).format("MM/DD hh:mm a") : "-";
 
     const fetchUserEta = async () => await axios.get("eta/my/").then((response) => eta.value = response.data);
-    const sendEtaCommand = async (payload) => await axios.post("eta/my/", payload).catch(({response}) => message.value = response.data.detail);
+    const sendEtaCommand = async (payload) => {
+      await axios.post("eta/my/", payload)
+        .then(() => message.value = "")
+        .catch(({response}) => message.value = response.data.detail);
+    };
 
     onMounted(
       async () => {
@@ -27,7 +31,6 @@ export default {
       const payload = {...Object.fromEntries(form.entries()), tzinfo: Intl.DateTimeFormat().resolvedOptions().timeZone};
       await sendEtaCommand(payload);
       await fetchUserEta();
-      message.value = "";
     };
 
     return {eta, message, formatDate, submit};
