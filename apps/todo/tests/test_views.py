@@ -1,7 +1,6 @@
 from django.contrib.auth.models import User
 from django.test import SimpleTestCase, TestCase
 from django.urls import reverse
-from django.utils import timezone
 from rest_framework.test import APIClient
 
 from apps.todo.models import Expectation
@@ -13,10 +12,7 @@ class IndexViewTest(SimpleTestCase):
         self.assertTemplateUsed(response, "index.html")
 
 
-password = "bsQ^L0E7D^Y8"
-
-
-class TestEtaCommands(TestCase):
+class TestEta(TestCase):
     fixtures = ["fixtures.json"]
 
     def setUp(self):
@@ -27,8 +23,6 @@ class TestEtaCommands(TestCase):
 
         self.valid_test_cases = {
             "correct_command": "project#issue at 21:15",
-            "correct_date": "project#issue at 10-12 21:15",
-            "correct_verbose": "project#issue at tomorrow 21:15",
         }
 
         self.invalid_test_cases = {
@@ -46,38 +40,34 @@ class TestEtaCommands(TestCase):
         self.user_eta_url = reverse("user_eta")
         self.opened_eta_url = reverse("user_eta")
 
+    def __assert_client_current_eta(self, user, current):
+        self.client.force_login(user)
+        data = self.client.get(self.user_eta_url).json()
+        if current is None:
+            self.assertIsNone(data.get("current"))
+        else:
+            self.assertDictContainsSubset(current, data.get("current"))
+
+    def __create_new_eta(self, payload, url, status, user=None):
+        if user:
+            self.client.force_login(user)
+
+        response = self.client.post(url, data=payload)
+        self.assertEqual(response.status_code, status)
+        return response
+
     def test_eta_creation(self):
-        self.client.force_login(self.user)
+        self.__assert_client_current_eta(self.user, current=None)
+        self.__assert_client_current_eta(self.joe, current=None)
 
-        response = self.client.get(self.user_eta_url)
-        self.assertDictEqual(response.json(), {"current": None, "closed": []})
+        self.__create_new_eta({"command": self.valid_test_cases["correct_command"]}, self.user_eta_url, 200, self.user)
+        self.__assert_client_current_eta(
+            self.user,
+            current={"project": {"name": "project"}, "issue": "issue", "user": {"username": self.user.username}},
+        )
+        self.__assert_client_current_eta(self.joe, None)
 
-        response = self.client.post(self.user_eta_url, data={"command": self.valid_test_cases["correct_command"]})
-        self.assertEqual(response.status_code, 200)
-
-        response = self.client.get(self.user_eta_url)
-        data = response.json()
-        self.assertIsNotNone(data.get("current"))
-
-        user_expectation = Expectation.objects.filter(user=self.user, project__name="project", issue="issue")
-        self.assertEqual(user_expectation.count(), 1)
-
-        expectation_date = user_expectation.first().expected_at
-        self.assertEqual(expectation_date.minute, 15)
-        self.assertEqual(expectation_date.hour, 21)
-        self.assertEqual(expectation_date.date(), timezone.now().date())
-
-        response = self.client.post(self.user_eta_url, data={"command": self.valid_test_cases["correct_command"]})
-        self.assertEqual(response.status_code, 400)
-
-    def test_eta_duplicates(self):
-        ...
-
-    def test_eta_upgrate(self):
-        ...
-
-    def test_eta_close(self):
-        ...
+        self.__create_new_eta({"command": self.valid_test_cases["correct_command"]}, self.user_eta_url, 400, self.user)
 
     def test_eta_invalid_commands(self):
         self.client.force_login(self.user)

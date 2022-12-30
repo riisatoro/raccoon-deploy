@@ -21,8 +21,9 @@ class UserEtaView(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request):
-        current_eta = Expectation.objects.filter(done_at__isnull=True).first()
-        closed_eta = Expectation.objects.filter(user=request.user).filter(done_at__lt=timezone.now())
+        user_expectations = Expectation.objects.filter(user=request.user)
+        current_eta = user_expectations.filter(done_at__isnull=True).first()
+        closed_eta = user_expectations.filter(done_at__lt=timezone.now())
 
         data = {
             "current": ExpectationSerializer(current_eta).data if current_eta else None,
@@ -33,12 +34,9 @@ class UserEtaView(APIView):
     def post(self, request):
         command = request.data.get("command", "")
         client_timezone = request.data.get("tzinfo", "UTC")
+        user_expectations = Expectation.objects.filter(user=request.user)
 
-        existed_eta = (
-            Expectation.objects.filter(user=request.user)
-            .filter(Q(done_at__isnull=True) | Q(done_at__gt=timezone.now()))
-            .first()
-        )
+        existed_eta = user_expectations.filter(Q(done_at__isnull=True) | Q(done_at__gt=timezone.now())).first()
         try:
             if existed_eta:
                 extends_existed_eta(command, existed_eta)
