@@ -61,6 +61,9 @@ def parse_new_eta(command: str, clinet_timezone) -> list[str | datetime]:
 def create_new_eta(command: str, client_timezone: str, user) -> Expectation:
     project_name, issue_name, expected_at_date = parse_new_eta(command, client_timezone)
 
+    if expected_at_date < timezone.now():
+        raise ValueError("Cannot create ETA for the past.")
+
     project, _ = Project.objects.get_or_create(name=project_name)
     expectation = Expectation.objects.create(
         project=project,
